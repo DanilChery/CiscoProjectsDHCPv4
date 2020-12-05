@@ -1,6 +1,7 @@
 # Lab-DHCPv4  
 ## Part 1: Part 1: Build the Network and Configure Basic Device Settings  
 ### Step 1: Establish an addressing scheme  
+![alt-текст](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/lab-dhcp-schema.jpg "Текст заголовка логотипа 1")   
 #### a.	One subnet, “Subnet A”, supporting 58 hosts (the client VLAN at R1).  
 Subnet A: 192.168.1.0/26  
 #### b.	One subnet, “Subnet B”, supporting 28 hosts (the management VLAN at R1).   
@@ -21,11 +22,11 @@ line aux 0
 line vty 0 4  
  password 7 121A0C041104  
  login   
- transport input none  
+ transport input ssh  
 line vty 5 15  
  password 7 121A0C041104  
  login  
- transport input none  
+ transport input ssh  
 !  
 no scheduler allocate  
 !  
@@ -47,9 +48,10 @@ R2#
 R1(config)#int gi 0/1  
 R1(config-if)#no sh  
 R1(config-if)#no shutdown  
-R1(config-if)#  
 *Nov 21 09:57:48.713: %LINK-3-UPDOWN: Interface GigabitEthernet0/1, changed state to up  
-*Nov 21 09:57:49.712: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to up  
+*Nov 21 09:57:49.712: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to up
+
+![alt-текст](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/r1-g1.png "Текст заголовка логотипа 1")  
 #### b.	Configure sub-interfaces for each VLAN as required by the IP addressing table. All sub-interfaces use 802.1Q encapsulation and are assigned the first usable address from the IP address pool you have calculated. Ensure the sub-interface for the native VLAN does not have an IP address assigned. Include a description for each sub-interface  
 R1(config)#int gi 0/1.100  
 R1(config-subif)#enc  
@@ -93,6 +95,7 @@ R2(config-if)#no shutdown
 R2(config-if)#  
 *Nov 21 10:06:52.436: %LINK-3-UPDOWN: Interface GigabitEthernet0/0, changed state to up  
 *Nov 21 10:06:53.436: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to up  
+![alt-текст](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/r2-g0.png "Текст заголовка логотипа 1")  
 #### c.	Configure a default route on each router pointed to the IP address of G0/0/0 on the other router.  
 R2(config)#ip default-gateway 10.0.0.1  
 #### d.	Verify static routing is working by pinging R2’s G0/0/1 address from R1.  
@@ -100,7 +103,9 @@ R2(config)#do ping 10.0.0.1
 Type escape sequence to abort.  
 Sending 5, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:  
 .!!!!  
-Success rate is 80 percent (4/5), round-trip min/avg/max = 2/2/3 ms  
+Success rate is 80 percent (4/5), round-trip min/avg/max = 2/2/3 ms
+
+![alt-текст](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/r2-ping.png "Текст заголовка логотипа 1")  
 #### e.	Save the running configuration to the startup configuration file.  
 R2#wr memory  
 Building configuration...  
@@ -160,6 +165,7 @@ S1(config-if-range)#switchport access v
 S1(config-if-range)#switchport access vlan 999  
 S1(config-if-range)#shu  
 S1(config-if-range)#shutdown  
+![alt-текст](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/s1-vlan.png "Текст заголовка логотипа 1")  
 ### Step 7: Assign VLANs to the correct switch interfaces.  
 #### a.	Assign used ports to the appropriate VLAN (specified in the VLAN table above) and configure them for static access mode.  
 S1(config)#int gi 1/1  
@@ -184,18 +190,9 @@ S1#show interfaces trunk
 ## Part 2: Configure and v erify two DHCPv4 Servers on R1  
 ### Step 1: Configure R1 with DHCPv4 pools for the two supported subnets. Only the DHCP Pool for subnet A is given below  
 #### a.	Exclude the first five useable addresses from each address pool.  
-R1(config)#ip dhc  
-R1(config)#ip dhcp ex  
-R1(config)#ip dhcp excluded-address 192.168.1.1  
-R1(config)#ip dhcp excluded-address 192.168.1.2  
-R1(config)#ip dhcp excluded-address 192.168.1.3  
-R1(config)#ip dhcp excluded-address 192.168.1.4  
-R1(config)#ip dhcp excluded-address 192.168.1.5  
-R1(config)#ip dhcp excluded-address 192.168.1.97  
-R1(config)#ip dhcp excluded-address 192.168.1.98  
-R1(config)#ip dhcp excluded-address 192.168.1.99  
-R1(config)#ip dhcp excluded-address 192.168.1.100  
-R1(config)#ip dhcp excluded-address 192.168.1.101  
+R1(config)#ip dhcp excluded-address 192.168.1.1 192.168.1.5 
+R1(config)#ip dhcp excluded-address 192.168.1.97 192.168.1.101
+
 #### b.	Create the DHCP pool (Use a unique name for each pool).  
 R1(config)#ip dhcp pool  
 R1(config)#ip dhcp pool Lan_A  
@@ -235,10 +232,7 @@ VPCS> ping 192.168.1.1
 ## Part 3: Configure and verify a DHCP Relay on R2  
 ### Step 1: Configure R2 as a DHCP relay agent for the LAN on G0/0/1  
 #### a.	Configure the ip helper-address command on G0/0/1 specifying R1’s G0/0/0 IP address.  
-R2(config-if)#int gi 0/1  
-R2(config-if)#ip help-  
-R2(config-if)#ip helpe  
-R2(config-if)#ip helper-address 10.0.0.1  
+![alt-текст](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/pc-ping.png "Текст заголовка логотипа 1")  
 ### Step 2: Attempt to acquire an IP address from DHCP on PC-B  
 #### a.	Open a command prompt on PC-B and issue the command ipconfig /renew.  
 #### b.	Once the renewal process is complete, issue the command ipconfig to view the new IP information  
@@ -252,3 +246,9 @@ IP address          Client-ID/              Lease expiration        Type
 192.168.1.6         0100.5079.6668.07       Nov 23 2020 10:56 PM    Automatic  
 192.168.1.103       0100.5079.6668.08       Nov 21 2020 10:50 AM    Automatic  
        
+
+
+[R1-Config](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/lab-dhcp-r1.txt "")  
+[r2-Config](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/lab-dhcp-r2.txt "")  
+[S1-Config](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/lab-dhcp-s1.txt "")  
+[S2-Config](https://github.com/DanilChery/CiscoProjectsDHCPv4/blob/main/lab-dhcp-s2.txt "")  
